@@ -9,7 +9,7 @@ import (
 func init() {
 
 	mx := &gormigrate.Migration{
-		ID:       "0001",
+		ID:       "0005",
 		Migrate:  mixture.CreateTableM(&service.Courier{}),
 		Rollback: mixture.DropTableR(&service.Courier{}),
 	}
