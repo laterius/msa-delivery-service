@@ -13,9 +13,9 @@ func NewService(db *gorm.DB) Service {
 	return Service{db: db}
 }
 
-type Reservations struct {
-	CourierId   uuid.UUID `json:"courierId" gorm:"type:uuid; not null"`
+type Courierreservations struct {
 	OrderId     uuid.UUID `json:"orderId" gorm:"type:uuid; not null"`
+	CourierId   uuid.UUID `json:"courierId" gorm:"type:uuid; not null"`
 	Destination string    `json:"destination"`
 }
 
@@ -30,7 +30,7 @@ func (s *Service) GetFreeCourier() (Courier, error) {
 
 	var result Courier
 
-	err := s.db.Raw("SELECT * FROM couriers WHERE id NOT IN (SELECT courier_id FROM reservations) LIMIT 1").Scan(&result).Error
+	err := s.db.Raw("SELECT * FROM couriers WHERE id NOT IN (SELECT courier_id FROM courierreservations) LIMIT 1").Scan(&result).Error
 
 	if err != nil {
 		return Courier{}, err
@@ -40,7 +40,7 @@ func (s *Service) GetFreeCourier() (Courier, error) {
 }
 
 func (s *Service) Reserve(courier Courier, orderId uuid.UUID) error {
-	err := s.db.Create(Reservations{
+	err := s.db.Create(Courierreservations{
 		OrderId:   orderId,
 		CourierId: courier.Id,
 	}).Error
@@ -48,5 +48,10 @@ func (s *Service) Reserve(courier Courier, orderId uuid.UUID) error {
 }
 
 func (s *Service) CancelReservation(orderId uuid.UUID) error {
-	return s.db.Delete(&Reservations{OrderId: orderId}).Error
+	return s.db.Delete(&Courierreservations{}, orderId).Error
+}
+
+func (s *Service) Get(orderId uuid.UUID) (reservation *Courierreservations, err error) {
+	err = s.db.Model(reservation).Where(orderId).First(&reservation).Error
+	return
 }

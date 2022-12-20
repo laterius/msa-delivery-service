@@ -38,6 +38,7 @@ func main() {
 	//Handlers
 	server.POST("/reserveCourier", api.ReserveCourierHandler(newService))
 	server.POST("/cancelCourierReservation", api.CancelCourierReservationHandler(newService))
+	server.GET("/reserveCourier/:orderId", api.GetReserveCourierHandler(newService))
 	server.GET("/probe/live", transport.RespondOk())
 	server.GET("/probe/ready", transport.RespondOk())
 
